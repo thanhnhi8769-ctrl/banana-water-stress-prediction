@@ -1,9 +1,13 @@
 """Kiểm tra dữ liệu thật trước khi chạy pipeline: nhãn, rò rỉ, water_deficit, cấu trúc."""
+import os
+
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import GroupKFold, cross_val_score
 from sklearn.tree import DecisionTreeClassifier
 from config import RAW_PATH, ENCODING, RENAME, LABEL_COL, LABEL_ORDER, REQUIRED
+
+os.makedirs("outputs", exist_ok=True)
 
 out = []
 

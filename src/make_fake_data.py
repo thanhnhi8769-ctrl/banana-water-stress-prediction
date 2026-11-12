@@ -1,5 +1,9 @@
+import os
+
 import numpy as np
 import pandas as pd
+
+os.makedirs("data/raw", exist_ok=True)
 
 rng = np.random.default_rng(42)
 N_PLANTS, N_WEEKS = 130, 26
