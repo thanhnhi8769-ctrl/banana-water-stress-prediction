@@ -3,6 +3,9 @@ import os
 import subprocess
 import sys
 
+os.makedirs("outputs/figures", exist_ok=True)
+os.makedirs("data/raw", exist_ok=True)
+
 STEPS = ["01_data_cleaning.py", "02_signal_denoising.py", "03_feature_engineering.py",
          "10_ablation_study.py", "11_final.py", "13_plots.py"]
 env = dict(os.environ, PYTHONUTF8="1")
