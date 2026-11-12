@@ -94,20 +94,40 @@ Sau khi chạy với dữ liệu thật, điền số liệu vào đây.
    trạm thời tiết, nông trại), kiểm tra điều khoản trước khi đưa lên cloud hoặc công bố.
    Không đưa dữ liệu thật lên GitHub công khai.
 
-## Chạy trên AWS (tùy chọn)
+## Chạy trên AWS (đã thử)
 
-Một máy EC2 nhỏ (Ubuntu 24.04, 4 vCPU, không cần GPU) là đủ.
+Đã chạy thành công trên EC2 `t3.micro` (free tier), Ubuntu 24.04, bằng dữ liệu giả.
+Kết quả trùng khớp với máy cá nhân, nên môi trường tái lập được.
+Chưa thử với dữ liệu thật.
+
+Lưu ý khi tạo máy:
+- Security group: SSH (port 22), nguồn **My IP** dạng IPv4. Nếu SSH báo `Connection timed out`,
+  kiểm tra rule không bị gắn với địa chỉ IPv6.
+- Máy `t3.micro` chỉ có 1 GB RAM nên tạo swap 2 GB trước khi chạy.
 
 ```bash
-sudo apt update && sudo apt install -y git tmux awscli
+sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile
+sudo mkswap /swapfile && sudo swapon /swapfile
+
+sudo apt update && sudo apt install -y git tmux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+source ~/.bashrc
+
 git clone https://github.com/thanhnhi8769-ctrl/banana-water-stress-prediction.git
 cd banana-water-stress-prediction
-# cài môi trường như mục "Cài đặt" (Linux)
-mkdir -p data/raw
-aws s3 cp s3://TEN-BUCKET/dataset_operacional_final.csv data/raw/
+uv venv --python 3.14 .venv
+source .venv/bin/activate
+uv pip install -r requirements.txt
+
 tmux new -s train
-python3 src/00b_validate_data.py
-python3 run_all.py 2>&1 | tee outputs/run.log
-aws s3 sync outputs/ s3://TEN-BUCKET/outputs/
+python src/make_fake_data.py        # hoặc chép dữ liệu thật vào data/raw/ bằng scp
+python src/00b_validate_data.py
+python run_all.py 2>&1 | tee run.log
 ```
-Chạy xong nhớ **Stop hoặc Terminate** instance để không bị tính tiền.
+
+Tải kết quả về (PowerShell trên máy cá nhân):
+```powershell
+scp -i "banana.pem" -r ubuntu@<public-ip>:~/banana-water-stress-prediction/outputs .\outputs_aws
+```
+
+Xong thì **Terminate** instance.
