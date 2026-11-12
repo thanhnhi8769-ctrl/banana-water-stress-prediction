@@ -96,7 +96,7 @@ Sau khi chạy với dữ liệu thật, điền số liệu vào đây.
 
 ## Chạy trên AWS (đã thử)
 
-Đã chạy thành công trên EC2 `t3.micro` (free tier), Ubuntu 24.04, bằng dữ liệu giả.
+Đã chạy thành công trên EC2 `t3.micro`, Ubuntu 24.04, bằng dữ liệu giả.
 Kết quả trùng khớp với máy cá nhân, nên môi trường tái lập được.
 Chưa thử với dữ liệu thật.
 
