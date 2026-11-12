@@ -6,7 +6,7 @@ Pipeline 2 tầng:
 
 ## Cài đặt
 
-Python 3.14.8 (bản đã dùng để chạy ra kết quả). Các thư viện được ghim phiên bản trong `requirements.txt`.
+Python 3.14.8 (bản đã dùng để chạy thử code). Các thư viện được ghim phiên bản trong `requirements.txt`.
 
 **Windows (PowerShell)**
 ```powershell
@@ -64,6 +64,7 @@ Chưa có dữ liệu thật: `py src/make_fake_data.py` tạo dữ liệu giả
 | `src/10_ablation_study.py` | 7 bộ feature x 6 model, CV 5 fold theo cây |
 | `src/11_final.py` | Calibration, test 1 lần, bootstrap, quyết định tưới |
 | `src/13_plots.py` | 6 biểu đồ trong `outputs/figures/` |
+| `src/make_fake_data.py` | Tạo dữ liệu giả để thử code |
 | `run_all.py` | Chạy lần lượt 01 -> 02 -> 03 -> 10 -> 11 -> 13 |
 
 ## Quy ước chống rò rỉ
@@ -74,34 +75,24 @@ Chưa có dữ liệu thật: `py src/make_fake_data.py` tạo dữ liệu giả
 - Bộ `*_noWD` bỏ `water_deficit` để kiểm tra biến này có mang thông tin treatment không.
 - Mốc đối chứng bắt buộc: Most Frequent và Persistence (t+1 = mức stress hiện tại).
 
-## Kết quả (dữ liệu thật: 130 cây, 26 tuần, test 26 cây)
+## Kết quả
 
-Cấu hình được chọn: bộ feature `D_full`, model `Ordinal_LogReg`, 24 biến.
-
-| | F1 | QWK | MAE |
-|---|---|---|---|
-| Mô hình (test) | 0.864 | 0.935 | 0.136 |
-| Persistence (t+1 = hiện tại) | 0.837 | 0.923 | 0.163 |
-
-- Khoảng tin cậy 95% (bootstrap theo cây): QWK [0.900, 0.957], F1 [0.811, 0.892].
-- Mô hình chỉ nhỉnh hơn Persistence một chút, và khoảng tin cậy của QWK chứa mức 0.923.
-  Chưa thể kết luận mô hình vượt trội.
-- Calibration không cải thiện Brier (0.1924 trước và sau), nên dùng xác suất thô.
-- Quyết định tưới (tỷ lệ chi phí 5:1): chính sách Expected-cost dùng khoảng 47% lượng nước
-  so với luôn tưới 100% ETc, chi phí kỳ vọng 0.152 so với 0.640.
-- Chỉ có 26 cây test nên các con số còn dao động khá nhiều.
+Kết quả chính thức **chưa có**: các lần chạy đến nay dùng dữ liệu giả
+(`make_fake_data.py`), chỉ để kiểm tra code, không dùng cho kết luận.
+Sau khi chạy với dữ liệu thật, điền số liệu vào đây.
 
 ## Hạn chế và việc cần kiểm tra trước khi kết luận
 
-1. **`water_deficit` có tính từ lượng tưới / treatment không?** Khi bỏ biến này
-   (bộ `B_noWD`), QWK giảm còn khoảng 0.2, nên mô hình phụ thuộc rất nhiều vào nó.
-   Nếu nó suy ra từ lượng tưới thì đây là rò rỉ gián tiếp.
-2. **`estres_*` được tạo thế nào** (độc lập với feature hay suy ra từ feature)?
-   Kiểm tra qua mô tả dataset hoặc hỏi nguồn cung cấp dữ liệu.
+1. **`water_deficit` có tính từ lượng tưới / treatment không?** Nếu có thì đây là rò rỉ
+   gián tiếp. Chạy `00b_validate_data.py` và bộ `*_noWD` trên dữ liệu thật để kiểm tra.
+2. **Nhãn `estres_*` phải đo độc lập với feature.** Khi xây dataset, nên lấy nhãn từ đo
+   sinh lý (thế nước lá, độ dẫn khí khổng) hoặc đánh giá chuyên gia, không tính từ
+   NDVI, `water_deficit` hay treatment. Ghi rõ cách tạo nhãn trong báo cáo.
 3. **Cost matrix**: nhu cầu nước theo mức stress (`NEED` trong `11_final.py`) và
    tỷ lệ chi phí 5:1 đến 50:1 là **giả định**, chưa có số liệu thực tế xác nhận.
-4. **Giấy phép dữ liệu**: kiểm tra nguồn và điều khoản sử dụng của dataset trước khi
-   đưa lên cloud hoặc công bố kết quả. Không đưa dữ liệu thật lên GitHub công khai.
+4. **Quyền sử dụng dữ liệu**: nếu dataset có phần lấy từ nguồn khác (ảnh vệ tinh,
+   trạm thời tiết, nông trại), kiểm tra điều khoản trước khi đưa lên cloud hoặc công bố.
+   Không đưa dữ liệu thật lên GitHub công khai.
 
 ## Chạy trên AWS (tùy chọn)
 
